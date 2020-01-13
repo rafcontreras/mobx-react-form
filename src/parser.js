@@ -16,6 +16,7 @@ const defaultValue = ({
   isEmptyArray = false
 }) => {
   if (type === 'date') return null;
+  if (type === 'datetime-local') return null;
   if (type === 'checkbox') return false;
   if (type === 'number') return 0;
   if (nullable) return null;
@@ -175,7 +176,7 @@ const reduceValuesToUnifiedFields = values =>
 /*
   Fallback Unified Props to Sepated Mode
 */
-const handleFieldsPropsFallback = (fields, initial) => {
+const handleFieldsPropsFallback = (fields, initial, fallback) => {
   if (!_.has(initial, 'values')) return fields;
   // if the 'values' object is passed in constructor
   // then update the fields definitions
@@ -184,7 +185,8 @@ const handleFieldsPropsFallback = (fields, initial) => {
     values = reduceValuesToUnifiedFields(values);
   }
   return _.merge(fields, _.transform(values, (result, v, k) => {
-    if (!(k in fields) || _.isArray(fields[k])) result[k] = v
+    if (_.isArray(fields[k])) result[k] = v
+    if (!(k in fields) && (!isNaN(Number(k)) || fallback)) result[k] = v
   }, {}));
 };
 
@@ -203,14 +205,14 @@ const mergeSchemaDefaults = (fields, validator) => {
   return fields;
 };
 
-const prepareFieldsData = (initial, strictProps = true) => {
+const prepareFieldsData = (initial, strictProps = true, fallback = true) => {
   let fields = _.merge(
     handleFieldsArrayOfStrings(initial.fields, false),
     handleFieldsArrayOfStrings(initial.struct, false),
   );
 
   fields = handleFieldsArrayOfObjects(fields);
-  fields = handleFieldsPropsFallback(fields, initial);
+  fields = handleFieldsPropsFallback(fields, initial, fallback);
   fields = handleFieldsNested(fields, strictProps);
 
   return fields;

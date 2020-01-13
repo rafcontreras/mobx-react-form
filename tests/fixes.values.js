@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 
 import $ from './data/_.fixes'; // FORMS
+import Form from '../src';
 
 describe('$A Field values checks', () => {
   it('$A qwerty value should be equal to "0"', () =>
@@ -302,5 +303,211 @@ describe('set null value', () => {
           city: ''
         }
       })
+  })
+});
+
+describe('falsy fallback', () => {
+	it('', () => {
+    expect($.$505.$('club.name').value).to.be.equal('JJSC')
+    expect($.$505.$('club.city').value).to.be.equal('Taipei')
+    expect($.$505.$('club').has('area')).to.be.equal(false)
+    expect(()=>$.$495.$('club.area')).to.throw('field is not defined')
+  })
+});
+
+describe('null date', () => {
+	it('', () => {
+    expect($.$507.$('people.0.birthday').value).to.be.equal(null)
+    expect($.$507.$('people').add().$('birthday').value).to.be.equal(null)
+  })
+});
+
+describe('update with input', () => {
+	it('', () => {
+    expect($.$514.$('priority').value).to.be.equal(1)
+    expect($.$514.$('itineraryItems.0.hotel.starRating').value).to.be.equal(5)
+  })
+});
+
+describe('new form with nested array values', () => {
+	it('', () => {
+    const fields = [
+      'purpose',
+      'trip.itineraryItems[].hotel.name',
+      'trip.itineraryItems[].hotel.starRating',
+    ];
+    
+    const values = {
+      purpose: 'Summer vacation',
+      trip: {
+        itineraryItems: [{
+          hotel: {
+            name: 'Shangri-La Hotel',
+            starRating: '5.0',
+          },
+        }, {
+          hotel: null,
+        }, {
+          hotel: {
+            name: 'Trump Hotel',
+            starRating: '5.0',
+          },
+        }]
+      }
+    }
+
+    const $516 = new Form({fields, values}, {name: 'Form 516'})
+    expect($516.$('purpose').value).to.be.equal('Summer vacation')
+    expect($516.$('trip.itineraryItems').size).to.be.equal(3)
+  })
+});
+
+describe('update to nested array items', () => {
+	it('', () => {
+    const fields = [
+      'bulletin',
+      'bulletin.jobs',
+      'bulletin.jobs[].jobId',
+      'bulletin.jobs[].companyName',
+    ];
+    
+    const values = {
+      bulletin: {
+        jobs: [
+        {
+          jobId: 1,
+          companyName: 'Acer'
+        },
+        {
+          jobId: 2,
+          companyName: 'Asus'
+        }]
+      }
+    };
+
+    const $521 = new Form({fields, values}, {name: 'Form 521'})
+    // debugger
+    $521.update({
+      bulletin: {
+        jobs: [{
+          jobId: 1,
+          companyName: 'Apple'
+        }]
+      }
+    })
+    expect($521.$('bulletin.jobs').size).to.be.equal(1)
+    expect($521.$('bulletin.jobs.0.jobId').value).to.be.equal(1)
+    expect($521.$('bulletin.jobs.0.jobId').isDirty).to.be.equal(false)
+    expect($521.$('bulletin.jobs.0.companyName').value).to.be.equal('Apple')
+    expect($521.$('bulletin.jobs.0.companyName').isDirty).to.be.equal(true)
+    expect($521.$('bulletin.jobs.0').isDirty).to.be.equal(true)
+    expect($521.$('bulletin.jobs').isDirty).to.be.equal(true)
+  })
+});
+
+describe('#523', () => {
+  it('', () => {
+    const fields = [{
+      name: 'fieldA',
+      label: 'fieldA'
+    }, {
+      name: 'fieldB',
+      label: 'fieldB',
+      fields: [{
+        name: "nestedB",
+        label: "nestedB"
+      }]
+	}];
+	
+    const $523 = new Form({fields}, {name: 'Form 523'})
+    expect($523.isDirty).to.be.false
+  })
+});
+
+describe('update nested nested array items', () => {
+	it('', () => {
+    const fields = [
+      'pricing',
+      'pricing.value[]',
+      'pricing.value[].prices[]',
+      'pricing.value[].prices[].money',
+      'pricing.value[].prices[].quantity',
+    ];
+    
+    const values = {
+      pricing: {
+        value: [
+          {
+            prices: [{
+              money: 35,
+              quantity: 1
+            }]
+          }
+        ]
+      }
+    };
+    const $526 = new Form({fields, values}, {name: 'Form 526'})
+    console.debug('pricing.value.0.initial', $526.$('pricing.value.0').initial)
+	  console.debug('pricing.value.0.prices.initial', $526.$('pricing.value.0.prices').initial)
+    $526.update({
+      pricing: {
+        value: [
+          {
+            prices: [
+              {
+                money: 35,
+                quantity: 1
+              },
+              {
+                money: 100,
+                quantity: 3
+              }
+            ]
+          }
+        ]
+      }
+    })
+    console.debug('pricing.value.0.initial', $526.$('pricing.value.0').initial)
+    console.debug('pricing.value.0.prices.initial', $526.$('pricing.value.0.prices').initial)
+    expect($526.$('pricing.value').isDirty).to.be.equal(true)
+    expect($526.$('pricing.value.0').isDirty).to.be.equal(true)
+    expect($526.$('pricing.value.0.prices').isDirty).to.be.equal(true)
+  })
+});
+
+describe('falsy fallback for array items', () => {
+	it('', () => {
+    const fields = [
+      'purpose',
+      'trip.itineraryItems[].hotel.name',
+      'trip.itineraryItems[].hotel.starRating',
+    ];
+    
+    const values = {
+      purpose: 'Summer vacation',
+      trip: {
+        itineraryItems: [{
+          hotel: {
+            name: 'Shangri-La Hotel',
+			starRating: '5.0',
+			favorite: true
+          },
+        }, {
+          hotel: null,
+        }, {
+          hotel: {
+            name: 'Trump Hotel',
+			starRating: '5.0',
+			favorite: false
+          },
+        }]
+      }
+    }
+
+    const $527 = new Form({fields, values}, {name: 'Form 527', options:{fallback: false}})
+    expect($527.$('purpose').value).to.be.equal('Summer vacation')
+    expect($527.$('trip.itineraryItems').size).to.be.equal(3)
+    expect($527.$('trip.itineraryItems.0.hotel')).not.to.be.undefined
+    expect($527.select('trip.itineraryItems.0.hotel.favorite', null, false)).to.be.undefined
   })
 });

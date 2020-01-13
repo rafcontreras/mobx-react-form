@@ -6,6 +6,7 @@ export default class Options {
 
   @observable options = {
     uniqueId,
+    fallback: true,
     defaultGenericError: null,
     submitThrowsError: true,
     showErrorsOnInit: false,

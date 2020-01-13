@@ -1,3 +1,21 @@
+# 2.0.8
+* pull #528
+
+# 2.0.7
+* pull #525
+
+# 2.0.6
+* fix #521
+
+# 2.0.5
+* fix #514 #516
+
+# 2.0.4
+* fix #507
+
+# 2.0.3
+* introduced `fallback` form option
+
 # 2.0
 * introduced `validateOnChangeAfterSubmit` form option
 
