@@ -1,34 +1,33 @@
-import { observable, action, toJS, extendObservable, set } from 'mobx';
-import _ from 'lodash';
-import { uniqueId } from './utils';
+import { action, extendObservable, observable, set, toJS } from "mobx";
+import has from "lodash-es/has";
+import { uId } from "./utils";
 
 export default class Options {
-
   @observable options = {
-    uniqueId,
-    fallback: true,
+    autoParseNumbers: false,
     defaultGenericError: null,
-    submitThrowsError: true,
-    showErrorsOnInit: false,
-    showErrorsOnSubmit: true,
+    fallback: true,
+    retrieveOnlyDirtyValues: false,
+    retrieveOnlyEnabledFields: false,
     showErrorsOnBlur: true,
     showErrorsOnChange: true,
     showErrorsOnClear: false,
+    showErrorsOnInit: false,
     showErrorsOnReset: true,
-    validateOnInit: true,
+    showErrorsOnSubmit: true,
+    softDelete: false,
+    strictDelete: true,
+    strictUpdate: false,
+    submitThrowsError: true,
+    uniqueId: uId,
+    validateDeletedFields: false,
+    validateDisabledFields: false,
     validateOnBlur: true,
     validateOnChange: false,
     validateOnChangeAfterInitialBlur: false,
     validateOnChangeAfterSubmit: false,
-    validateDisabledFields: false,
-    validateDeletedFields: false,
+    validateOnInit: true,
     validatePristineFields: true,
-    strictUpdate: false,
-    strictDelete: true,
-    softDelete: false,
-    retrieveOnlyDirtyValues: false,
-    retrieveOnlyEnabledFields: false,
-    autoParseNumbers: false,
     validationDebounceWait: 250,
     validationDebounceOptions: {
       leading: false,
@@ -38,8 +37,8 @@ export default class Options {
 
   get(key = null, field = null) {
     // handle field option
-    if (_.has(field, 'path')) {
-      if (_.has(field.$options, key)) {
+    if (has(field, "path")) {
+      if (has(field.$options, key)) {
         return field.$options[key];
       }
     }

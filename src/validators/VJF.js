@@ -1,8 +1,13 @@
-import _ from 'lodash';
-import { toJS } from 'mobx';
+import { toJS } from "mobx";
+import isArray from "lodash-es/isArray";
+import isBoolean from "lodash-es/isBoolean";
+import isFunction from "lodash-es/isFunction";
+import isString from "lodash-es/isString";
 
-const isPromise = obj => (!!obj && typeof obj.then === 'function'
-  && (typeof obj === 'object' || typeof obj === 'function'));
+const isPromise = (obj) =>
+  !!obj &&
+  typeof obj.then === "function" &&
+  (typeof obj === "object" || typeof obj === "function");
 
 /**
   Vanilla JavaScript Functions
@@ -15,7 +20,6 @@ const isPromise = obj => (!!obj && typeof obj.then === 'function'
 
 */
 class VJF {
-
   promises = [];
 
   config = null;
@@ -26,11 +30,7 @@ class VJF {
 
   validator = null;
 
-  constructor({
-    config = {},
-    state = {},
-    promises = []
-  }) {
+  constructor({ config = {}, state = {}, promises = [] }) {
     this.state = state;
     this.promises = promises;
     this.extend = config.extend;
@@ -40,7 +40,7 @@ class VJF {
 
   extendValidator() {
     // extend using "extend" callback
-    if (_.isFunction(this.extend)) {
+    if (isFunction(this.extend)) {
       this.extend({
         validator: this.validator,
         form: this.state.form,
@@ -54,11 +54,11 @@ class VJF {
     // get validators from validate property
     const $fn = toJS(field.validators);
     // map only if is an array of validator functions
-    if (_.isArray($fn)) {
-      $fn.map(fn => this.collectData(fn, field));
+    if (isArray($fn)) {
+      $fn.map((fn) => this.collectData(fn, field));
     }
     // it's just one function
-    if (_.isFunction($fn)) {
+    if (isFunction($fn)) {
       this.collectData($fn, field);
     }
     // execute the validation function
@@ -70,7 +70,7 @@ class VJF {
     // check and execute only if is a promise
     if (isPromise(res)) {
       const $p = res
-        .then($res => field.setValidationAsyncData($res[0], $res[1]))
+        .then(($res) => field.setValidationAsyncData($res[0], $res[1]))
         .then(() => this.executeAsyncValidation(field))
         .then(() => field.showAsyncErrors());
       // push the promise into array
@@ -86,9 +86,9 @@ class VJF {
 
   executeValidation(field) {
     // otherwise find an error message to show
-    field.validationFunctionsData
-      .map(rule => (rule.valid === false)
-        && field.invalidate(rule.message));
+    field.validationFunctionsData.map(
+      (rule) => rule.valid === false && field.invalidate(rule.message)
+    );
   }
 
   executeAsyncValidation(field) {
@@ -108,23 +108,23 @@ class VJF {
     /**
       Handle "array"
     */
-    if (_.isArray(res)) {
+    if (isArray(res)) {
       const isValid = res[0] || false;
-      const message = res[1] || 'Error';
+      const message = res[1] || "Error";
       return [isValid, message];
     }
 
     /**
       Handle "boolean"
     */
-    if (_.isBoolean(res)) {
-      return [res, 'Error'];
+    if (isBoolean(res)) {
+      return [res, "Error"];
     }
 
     /**
       Handle "string"
     */
-    if (_.isString(res)) {
+    if (isString(res)) {
       return [false, res];
     }
 
@@ -138,7 +138,7 @@ class VJF {
     /**
       Handle other cases
     */
-    return [false, 'Error'];
+    return [false, "Error"];
   }
 }
 

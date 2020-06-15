@@ -1,7 +1,19 @@
-import _ from 'lodash';
+import find from "lodash-es/find";
+import get from "lodash-es/get";
+import includes from "lodash-es/includes";
+import isEmpty from "lodash-es/isEmpty";
+import isFunction from "lodash-es/isFunction";
+import isNaN from "lodash-es/isNaN";
+import isNull from "lodash-es/isNull";
+import isUndefined from "lodash-es/isUndefined";
+import omitBy from "lodash-es/omitBy";
+import trim from "lodash-es/trim";
+import trimStart from "lodash-es/trimStart";
 
-const isPromise = obj => (!!obj && typeof obj.then === 'function'
-  && (typeof obj === 'object' || typeof obj === 'function'));
+const isPromise = (obj) =>
+  !!obj &&
+  typeof obj.then === "function" &&
+  (typeof obj === "object" || typeof obj === "function");
 
 /**
   Schema Validation Keywords
@@ -15,7 +27,6 @@ const isPromise = obj => (!!obj && typeof obj.then === 'function'
 
 */
 class SVK {
-
   promises = [];
 
   config = null;
@@ -28,11 +39,7 @@ class SVK {
 
   schema = null;
 
-  constructor({
-    config = {},
-    state = {},
-    promises = []
-  }) {
+  constructor({ config = {}, state = {}, promises = [] }) {
     this.state = state;
     this.promises = promises;
     this.extend = config.extend;
@@ -42,8 +49,8 @@ class SVK {
 
   extendOptions(options = {}) {
     return Object.assign(options, {
-      allowRequired: _.get(options, 'allowRequired') || false,
-      errorDataPath: 'property',
+      allowRequired: get(options, "allowRequired") || false,
+      errorDataPath: "property",
       allErrors: true,
       coerceTypes: true,
       v5: true,
@@ -56,7 +63,7 @@ class SVK {
     // create ajv instance
     const validator = new ajv(this.extendOptions(config.options));
     // extend ajv using "extend" callback
-    if (_.isFunction(this.extend)) {
+    if (isFunction(this.extend)) {
       this.extend({
         form: this.state.form,
         validator,
@@ -73,7 +80,7 @@ class SVK {
     if (isPromise(validate)) {
       const $p = validate
         .then(() => field.setValidationAsyncData(true))
-        .catch(err => err && this.handleAsyncError(field, err.errors))
+        .catch((err) => err && this.handleAsyncError(field, err.errors))
         .then(() => this.executeAsyncValidation(field))
         .then(() => field.showAsyncErrors());
 
@@ -88,7 +95,7 @@ class SVK {
   handleSyncError(field, errors) {
     const fieldErrorObj = this.findError(field.key, errors);
     // if fieldErrorObj is not undefined, the current field is invalid.
-    if (_.isUndefined(fieldErrorObj)) return;
+    if (isUndefined(fieldErrorObj)) return;
     // the current field is now invalid
     // add additional info to the message
     const msg = `${field.label} ${fieldErrorObj.message}`;
@@ -100,7 +107,7 @@ class SVK {
     // find current field error message from ajv errors
     const fieldErrorObj = this.findError(field.path, errors);
     // if fieldErrorObj is not undefined, the current field is invalid.
-    if (_.isUndefined(fieldErrorObj)) return;
+    if (isUndefined(fieldErrorObj)) return;
     // the current field is now invalid
     // add additional info to the message
     const msg = `${field.label} ${fieldErrorObj.message}`;
@@ -109,12 +116,12 @@ class SVK {
   }
 
   findError(path, errors) {
-    return _.find(errors, ({ dataPath }) => {
+    return find(errors, ({ dataPath }) => {
       let $dataPath;
-      $dataPath = _.trimStart(dataPath, '.');
-      $dataPath = _.trim($dataPath, '[\'');
-      $dataPath = _.trim($dataPath, '\']');
-      return _.includes($dataPath, `${path}`);
+      $dataPath = trimStart(dataPath, ".");
+      $dataPath = trim($dataPath, "['");
+      $dataPath = trim($dataPath, "']");
+      return includes($dataPath, `${path}`);
     });
   }
 
@@ -125,8 +132,8 @@ class SVK {
   }
 
   parseValues(values) {
-    if (_.get(this.config, 'options.allowRequired') === true) {
-      return _.omitBy(values, (_.isEmpty || _.isNull || _.isUndefined || _.isNaN));
+    if (get(this.config, "options.allowRequired") === true) {
+      return omitBy(values, isEmpty || isNull || isUndefined || isNaN);
     }
     return values;
   }

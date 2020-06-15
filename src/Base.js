@@ -1,10 +1,7 @@
-import { observable, computed, toJS } from 'mobx';
-import _ from 'lodash';
+import { observable, computed, toJS } from "mobx";
+import isFunction from "lodash-es/isFunction";
 
-import {
-  $try,
-  $isEvent,
-  hasIntKeys } from './utils';
+import { $try, $isEvent, hasIntKeys } from "./utils";
 
 export default class Base {
   noop = () => {};
@@ -15,20 +12,25 @@ export default class Base {
   @observable $validated = 0;
   @observable $validating = false;
 
-  execHook = (name, fallback = {}) => $try(
-    fallback[name],
-    this.$hooks[name],
-    this.hooks && this.hooks.apply(this, [this])[name],
-    this.noop,
-  ).apply(this, [this]);
+  execHook = (name, fallback = {}) =>
+    $try(
+      fallback[name],
+      this.$hooks[name],
+      this.hooks && this.hooks.apply(this, [this])[name],
+      this.noop
+    ).apply(this, [this]);
 
-  execHandler = (name, args, fallback = null) => [$try(
-    this.$handlers[name] && this.$handlers[name].apply(this, [this]),
-    this.handlers && this.handlers.apply(this, [this])[name] &&
-      this.handlers.apply(this, [this])[name].apply(this, [this]),
-    fallback,
-    this.noop,
-  ).apply(this, [...args]), this.execHook(name)];
+  execHandler = (name, args, fallback = null) => [
+    $try(
+      this.$handlers[name] && this.$handlers[name].apply(this, [this]),
+      this.handlers &&
+        this.handlers.apply(this, [this])[name] &&
+        this.handlers.apply(this, [this])[name].apply(this, [this]),
+      fallback,
+      this.noop
+    ).apply(this, [...args]),
+    this.execHook(name),
+  ];
 
   @computed get submitted() {
     return toJS(this.$submitted);
@@ -47,11 +49,11 @@ export default class Base {
   }
 
   @computed get hasIncrementalKeys() {
-    return (this.fields.size && hasIntKeys(this.fields));
+    return this.fields.size && hasIntKeys(this.fields);
   }
 
   @computed get hasNestedFields() {
-    return (this.fields.size !== 0);
+    return this.fields.size !== 0;
   }
 
   @computed get size() {
@@ -61,28 +63,28 @@ export default class Base {
   /**
    Interceptor
    */
-  intercept = opt =>
+  intercept = (opt) =>
     this.MOBXEvent(
-      _.isFunction(opt)
-        ? { type: 'interceptor', call: opt }
-        : { type: 'interceptor', ...opt },
+      isFunction(opt)
+        ? { type: "interceptor", call: opt }
+        : { type: "interceptor", ...opt }
     );
 
   /**
    Observer
    */
-  observe = opt =>
+  observe = (opt) =>
     this.MOBXEvent(
-      _.isFunction(opt)
-        ? { type: 'observer', call: opt }
-        : { type: 'observer', ...opt },
+      isFunction(opt)
+        ? { type: "observer", call: opt }
+        : { type: "observer", ...opt }
     );
 
   /**
     Event Handler: On Clear
   */
   onClear = (...args) =>
-    this.execHandler('onClear', args, (e) => {
+    this.execHandler("onClear", args, (e) => {
       e.preventDefault();
       this.clear(true);
     });
@@ -91,7 +93,7 @@ export default class Base {
     Event Handler: On Reset
   */
   onReset = (...args) =>
-    this.execHandler('onReset', args, (e) => {
+    this.execHandler("onReset", args, (e) => {
       e.preventDefault();
       this.reset(true);
     });
@@ -100,7 +102,7 @@ export default class Base {
     Event Handler: On Submit
    */
   onSubmit = (...args) =>
-    this.execHandler('onSubmit', args, (e, o = {}) => {
+    this.execHandler("onSubmit", args, (e, o = {}) => {
       e.preventDefault();
       this.submit(o);
     });
@@ -109,7 +111,7 @@ export default class Base {
     Event Handler: On Add
   */
   onAdd = (...args) =>
-    this.execHandler('onAdd', args, (e, val) => {
+    this.execHandler("onAdd", args, (e, val) => {
       e.preventDefault();
       this.add($isEvent(val) ? null : val);
     });
@@ -118,7 +120,7 @@ export default class Base {
     Event Handler: On Del
   */
   onDel = (...args) =>
-    this.execHandler('onDel', args, (e, path) => {
+    this.execHandler("onDel", args, (e, path) => {
       e.preventDefault();
       this.del($isEvent(path) ? this.path : path);
     });

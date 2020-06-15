@@ -1,31 +1,33 @@
-import _ from 'lodash';
-import utils from '../utils';
-import parser from '../parser';
+import each from "lodash-es/each";
+import head from "lodash-es/head";
+import isNil from "lodash-es/isNil";
+import split from "lodash-es/split";
+import trim from "lodash-es/trim";
+
+import utils from "../utils";
+import parser from "../parser";
 
 /**
   Field Utils
 */
 export default {
-
   /**
    Fields Selector
    */
   select(path, fields = null, isStrict = true) {
     const $path = parser.parsePath(path);
 
-    const keys = _.split($path, '.');
-    const head = _.head(keys);
+    const keys = split($path, ".");
+    const heads = head(keys);
 
     keys.shift();
 
-    let $fields = _.isNil(fields)
-      ? this.fields.get(head)
-      : fields.get(head);
+    let $fields = isNil(fields) ? this.fields.get(heads) : fields.get(heads);
 
     let stop = false;
-    _.each(keys, ($key) => {
+    each(keys, ($key) => {
       if (stop) return;
-      if (_.isNil($fields)) {
+      if (isNil($fields)) {
         $fields = undefined;
         stop = true;
       } else {
@@ -43,17 +45,15 @@ export default {
    */
   container($path) {
     const path = parser.parsePath(utils.$try($path, this.path));
-    const cpath = _.trim(path.replace(new RegExp('[^./]+$'), ''), '.');
+    const cpath = trim(path.replace(new RegExp("[^./]+$"), ""), ".");
 
-    if (!!this.path && _.isNil($path)) {
-      return cpath !== ''
+    if (!!this.path && isNil($path)) {
+      return cpath !== ""
         ? this.state.form.select(cpath, null, false)
         : this.state.form;
     }
 
-    return cpath !== ''
-      ? this.select(cpath, null, false)
-      : this;
+    return cpath !== "" ? this.select(cpath, null, false) : this;
   },
 
   /**
@@ -82,35 +82,35 @@ export default {
    *
    * JSON.stringify(form)
    * // => {
-     *   "fields": {
-     *     "state": {
-     *       "fields": {
-     *         "city": {
-     *           "fields": { "places": {
-     *                "fields": {},
-     *                "key": "places", "path": "state.city.places", "$value": "NY Places"
-     *              }
-     *           },
-     *           "key": "city", "path": "state.city", "$value": "New York"
-     *         }
-     *       },
-     *       "key": "state", "path": "state", "$value": "USA"
-     *     }
-     *   }
-     * }
+   *   "fields": {
+   *     "state": {
+   *       "fields": {
+   *         "city": {
+   *           "fields": { "places": {
+   *                "fields": {},
+   *                "key": "places", "path": "state.city.places", "$value": "NY Places"
+   *              }
+   *           },
+   *           "key": "city", "path": "state.city", "$value": "New York"
+   *         }
+   *       },
+   *       "key": "state", "path": "state", "$value": "USA"
+   *     }
+   *   }
+   * }
    *
    * const data = {};
    * form.each(field => data[field.path] = field.value);
    * // => {
-     *   "state": "USA",
-     *   "state.city": "New York",
-     *   "state.city.places": "NY Places"
-     * }
+   *   "state": "USA",
+   *   "state.city": "New York",
+   *   "state.city.places": "NY Places"
+   * }
    *
    */
   each(iteratee, fields = null, depth = 0) {
     const $fields = fields || this.fields;
-    _.each(utils.getObservableMapValues($fields), (field, index) => {
+    each(utils.getObservableMapValues($fields), (field, index) => {
       iteratee(field, index, depth);
 
       if (field.fields.size !== 0) {
@@ -118,6 +118,4 @@ export default {
       }
     });
   },
-
 };
-

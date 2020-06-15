@@ -1,8 +1,12 @@
-import _ from 'lodash';
-import { $try } from './utils';
+import each from "lodash-es/each";
+import has from "lodash-es/has";
+import isFunction from "lodash-es/isFunction";
+import isPlainObject from "lodash-es/isPlainObject";
+import merge from "lodash-es/merge";
+
+import { $try } from "./utils";
 
 export default class Bindings {
-
   templates = {
     // default: ({ field, props, keys, $try }) => ({
     //   [keys.id]: $try(props.id, field.id),
@@ -11,27 +15,28 @@ export default class Bindings {
 
   rewriters = {
     default: {
-      id: 'id',
-      name: 'name',
-      type: 'type',
-      value: 'value',
-      checked: 'checked',
-      label: 'label',
-      placeholder: 'placeholder',
-      disabled: 'disabled',
-      onChange: 'onChange',
-      onBlur: 'onBlur',
-      onFocus: 'onFocus',
-      autoFocus: 'autoFocus',
+      autoFocus: "autoFocus",
+      checked: "checked",
+      disabled: "disabled",
+      id: "id",
+      label: "label",
+      name: "name",
+      onBlur: "onBlur",
+      onChange: "onChange",
+      onFocus: "onFocus",
+      placeholder: "placeholder",
+      type: "type",
+      value: "value",
     },
   };
 
-  load(field, name = 'default', props) {
-    if (_.has(this.rewriters, name)) {
+  load(field, name = "default", props) {
+    if (has(this.rewriters, name)) {
       const $bindings = {};
 
-      _.each(this.rewriters[name], ($v, $k) =>
-        _.merge($bindings, { [$v]: $try(props[$k], field[$k]) }));
+      each(this.rewriters[name], ($v, $k) =>
+        merge($bindings, { [$v]: $try(props[$k], field[$k]) })
+      );
 
       return $bindings;
     }
@@ -45,9 +50,9 @@ export default class Bindings {
   }
 
   register(bindings) {
-    _.each(bindings, (val, key) => {
-      if (_.isFunction(val)) _.merge(this.templates, { [key]: val });
-      if (_.isPlainObject(val)) _.merge(this.rewriters, { [key]: val });
+    each(bindings, (val, key) => {
+      if (isFunction(val)) merge(this.templates, { [key]: val });
+      if (isPlainObject(val)) merge(this.rewriters, { [key]: val });
     });
 
     return this;

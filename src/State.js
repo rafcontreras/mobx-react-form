@@ -1,5 +1,7 @@
 import { observe } from 'mobx';
-import _ from 'lodash';
+import get from "lodash-es/get";
+import isString from "lodash-es/isString";
+import pick from "lodash-es/pick";
 
 import Options from './Options';
 import Bindings from './Bindings';
@@ -49,7 +51,7 @@ export default class State {
   }
 
   initProps(initial) {
-    const initialProps = _.pick(initial, [
+    const initialProps = pick(initial, [
       ...utils.props.separated,
       ...utils.props.validation,
       ...utils.props.function,
@@ -116,7 +118,7 @@ export default class State {
   }
 
   extra(data = null) {
-    if (_.isString(data)) return _.get(this.$extra, data);
+    if (isString(data)) return get(this.$extra, data);
     if (data === null) return this.$extra;
     this.$extra = data;
     return null;
