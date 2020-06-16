@@ -8,6 +8,7 @@ import isBoolean from "lodash-es/isBoolean";
 import isDate from "lodash-es/isDate";
 import isEmpty from "lodash-es/isEmpty";
 import isEqual from "lodash-es/isEqual";
+import isFunction from "lodash-es/isFunction";
 import isNil from "lodash-es/isNil";
 import isNumber from "lodash-es/isNumber";
 import isPlainObject from "lodash-es/isPlainObject";
