@@ -1,4 +1,5 @@
 import { action, observable } from "mobx";
+import get from "lodash-es/get";
 import has from "lodash-es/has";
 import isNil from "lodash-es/isNil";
 import isString from "lodash-es/isString";
