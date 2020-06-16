@@ -16,7 +16,6 @@
     "build:umd": "webpack",
     "build:umdmin": "MINIFY=YES webpack -p",
     "prebuild": "npm run clean:build",
-    "precommit": "npm run lint && npm run cover",
     "commit": "git-cz && git push origin",
     "watch:build": "babel --watch -d lib/ src/",
     "watch:test": "npm run test -- -w",

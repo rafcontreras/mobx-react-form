@@ -1,4 +1,4 @@
-import { observe } from 'mobx';
+import { observe } from 'mobx3';
 import get from "lodash-es/get";
 import isString from "lodash-es/isString";
 import pick from "lodash-es/pick";
