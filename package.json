@@ -71,8 +71,8 @@
     }
   },
   "dependencies": {
-    "lodash": "^4.17.15",
-    "lodash-es": "^4.17.15"
+    "lodash-es": "^4.17.15",
+    "mobx": "3"
   },
   "peerDependencies": {
     "mobx": "^2.5.0 || ^3.0.0 || ^4.0.0 || ^5.0.0"
